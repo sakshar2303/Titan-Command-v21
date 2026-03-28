@@ -1,0 +1,50 @@
+# ==========================================
+# TITAN COMMAND | OpenEnv Configuration
+# ==========================================
+name: "titan-command-v21"
+version: "21.0.0"
+description: "A high-fidelity emergency triage simulation featuring financial scaling and veteran XP persistence."
+
+# --- ENTRYPOINT RESOLUTION ---
+# This points to: Folder.Subfolder.FileName:ClassName
+entrypoint: "titan-command-v8.backend.my_env:EmergencyEnv"
+
+# --- ENVIRONMENT SPECIFICATIONS ---
+render_modes:
+  - "human"           # The Streamlit HUD
+  - "rgb_array"       # For potential ML training
+  
+observation_space:
+  type: "Dict"
+  details:
+    budget: "Box(0, 200000, (1,))"
+    integrity: "Box(0, 100, (1,))"
+    incidents: "Sequence(Incident)"
+
+action_space:
+  type: "Discrete"
+  details:
+    - "0: None (Passive Pulse)"
+    - "1: Dispatch Helicopter"
+    - "2: Dispatch Fire Truck"
+    - "3: Dispatch Ambulance"
+
+# --- SYSTEM DEPENDENCIES ---
+dependencies:
+  python: ">=3.10"
+  pip:
+    - fastapi
+    - uvicorn
+    - pydantic
+    - streamlit
+    - plotly
+    - requests
+    - pandas
+
+# --- METADATA ---
+author: "Commander Sakshar"
+license: "MIT"
+tags:
+  - "Digital Twin"
+  - "Crisis Management"
+  - "Reinforcement Learning"
