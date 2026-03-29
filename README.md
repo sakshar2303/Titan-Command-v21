@@ -2,7 +2,7 @@
 title: Titan Command v21.0
 emoji: 🚀
 colorFrom: red
-colorTo: black
+colorTo: gray
 sdk: docker
 pinned: false
 ---
