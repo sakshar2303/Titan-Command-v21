@@ -9,6 +9,7 @@ description = "High-fidelity emergency triage simulation for AI agents"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
+    "openenv-core>=0.2.0",
     "fastapi>=0.104.0",
     "pydantic>=2.0.0",
     "uvicorn[standard]>=0.24.0",
@@ -21,7 +22,8 @@ dependencies = [
 ]
 
 [project.scripts]
-titan-command = "main:app"
+openenv-server = "server.app:main"
 
 [tool.setuptools]
+packages = ["server"]
 py-modules = ["main", "my_env", "inference", "app"]
