@@ -30,7 +30,7 @@ ENV PYTHONPATH="/app"
 RUN chmod +x run.sh
 
 # Expose the ports (8000 for FastAPI, 7860 for Streamlit/HF Spaces)
-EXPOSE 8000 7860
+EXPOSE 7860 8000
 
 # Launch the dual-process script
 CMD ["./run.sh"]

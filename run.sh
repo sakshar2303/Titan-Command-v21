@@ -1,10 +1,8 @@
 #!/bin/bash
-echo "🚀 Starting TITAN BACKEND..."
-# Run from the root folder
-uvicorn main:app --host 0.0.0.0 --port 8000 &
+# Start the backend on the MAIN port (7860) so the URL hits it directly
+uvicorn main:app --host 0.0.0.0 --port 7860 &
 
-sleep 5
+sleep 3
 
-echo "🛰️ Starting TITAN HUD..."
-# Run from the root folder
-streamlit run app.py --server.port 7860 --server.address 0.0.0.0
+# Start Streamlit on a different port (8000)
+streamlit run app.py --server.port 8000 --server.address 0.0.0.0
