@@ -1,8 +1,8 @@
 ---
-title: Titan Command v21.0
+title: Titan Command v21
 emoji: 🚀
-colorFrom: red
-colorTo: gray
+colorFrom: blue
+colorTo: indigo
 sdk: docker
 pinned: false
 ---
