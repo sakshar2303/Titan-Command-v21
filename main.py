@@ -1,13 +1,11 @@
 import uvicorn
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from my_env import EmergencyEnv, Action
 
+app = FastAPI(title="Titan Command v21", version="21.0.0")
 
-app = FastAPI()
-
-# --- 1. ADD CORS MIDDLEWARE (CRITICAL FOR SCALER CHECKS) ---
-# This allows the Scaler automated grader to talk to your API safely.
+# CORS — allows OpenEnv grader and external clients to connect
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -18,8 +16,16 @@ app.add_middleware(
 
 sim = EmergencyEnv()
 
+
+@app.get("/")
+def root():
+    """Health check endpoint."""
+    return {"status": "ok", "name": "titan-command-v21"}
+
+
 @app.get("/status")
 def get_status():
+    """Return the full current simulation state."""
     is_done = sim.steps_taken >= 100 or sim.sector_integrity <= 0
     return {
         "budget": int(sim.budget),
@@ -29,7 +35,7 @@ def get_status():
         "incidents": [
             {
                 "id": i.id, "type": i.type, "x": i.x, "y": i.y,
-                "severity": i.severity, "p_score": sim.get_priority_score(i)
+                "severity": i.severity, "p_score": sim.get_priority_score(i),
             }
             for i in sim.incidents
         ],
@@ -44,17 +50,20 @@ def get_status():
         "fleet_usage": sim.fleet_usage,
     }
 
+
 @app.post("/reset")
 def reset():
+    """Reset the environment and return the initial observation."""
     observation = sim.reset()
-    return observation  # MUST return the initial state/observation dictionary
+    return observation
+
 
 @app.post("/dispatch")
 def dispatch(action: Action):
+    """Dispatch a unit to an incident."""
     result = sim.step(action)
     return {"ok": True, "result": result}
 
-# --- FIX HOST FOR DOCKER COMPATIBILITY ---
+
 if __name__ == "__main__":
-    # 0.0.0.0 allows the app to be reachable from outside the container.
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=7860)
