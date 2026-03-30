@@ -1,7 +1,7 @@
 import streamlit as st
 import requests, plotly.graph_objects as go, plotly.express as px, time
 
-API_URL = "http://127.0.0.1:8000"
+API_URL = "http://127.0.0.1:7860"
 st.set_page_config(page_title="TITAN COMMAND | v20.5", layout="wide")
 
 # --- 🎨 DARK SCI-FI CSS ---
