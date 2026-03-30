@@ -65,6 +65,31 @@ class EmergencyEnv:
         for _ in range(3):
             self._spawn_incident()
 
+        # Return the initial observation (required by OpenEnv grader)
+        return self._get_observation()
+
+    def _get_observation(self) -> dict:
+        """Build and return the current observation dictionary."""
+        return {
+            "budget": int(self.budget),
+            "lives_saved": int(self.lives_saved),
+            "steps_taken": int(self.steps_taken),
+            "integrity": float(self.sector_integrity),
+            "incidents": [
+                {
+                    "id": i.id, "type": i.type, "x": i.x, "y": i.y,
+                    "severity": i.severity,
+                }
+                for i in self.incidents
+            ],
+            "districts": self.districts,
+            "unit_levels": self.unit_levels,
+            "unit_xp": self.unit_xp,
+            "is_done": False,
+            "unit_ready": self.unit_ready,
+            "cooldowns": self.cooldowns,
+        }
+
     def _spawn_incident(self, x=None, y=None, sev=None):
         """Generates a new threat on the 3D grid"""
         types = ["fire", "medical", "chemical"]
