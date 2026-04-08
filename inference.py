@@ -24,7 +24,7 @@ def main():
 
         client = OpenAI(
             base_url=api_base_url,
-            api_key=hf_token,
+            api_key=hf_token or "dummy_token_to_prevent_crash",
         )
 
         env = EmergencyEnv()

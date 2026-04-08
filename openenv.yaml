@@ -55,7 +55,7 @@ dependencies:
     - plotly
     - requests
     - pandas
-
+    - openai
 # --- REQUIRED EVALUATOR ENVIRONMENT VARIABLES ---
 # The hackathon evaluator actively injects these parameters during testing.
 env:
