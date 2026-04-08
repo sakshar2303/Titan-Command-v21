@@ -19,11 +19,12 @@ def main():
         # Hackathon environment injection requirement
         api_base_url = os.getenv("API_BASE_URL", "https://api.openai.com/v1")
         model_name = os.getenv("MODEL_NAME", "gpt-4o-mini")
-        hf_token = os.getenv("HF_TOKEN", "")
+        hf_token = os.getenv("HF_TOKEN")
+        local_image_name = os.getenv("LOCAL_IMAGE_NAME")
 
         client = OpenAI(
             base_url=api_base_url,
-            api_key=hf_token if hf_token else "dummy_key_for_local_testing",
+            api_key=hf_token,
         )
 
         env = EmergencyEnv()
