@@ -3,7 +3,7 @@ import json
 import os
 from pydantic import BaseModel
 from typing import List, Optional
-
+import math
 # --- DATA MODELS ---
 class Action(BaseModel):
     incident_id: int
@@ -180,19 +180,33 @@ class EmergencyEnv:
         return round((inc.severity * 2.5) + (inc.population / 400.0), 2)
 
 # --- GRADERS ---
-def grade_budget(env: EmergencyEnv) -> float:
+def _extract_metric(env, key, default):
+    if hasattr(env, key):
+        return float(getattr(env, key))
+    elif isinstance(env, dict) and key in env:
+        return float(env[key])
+    elif isinstance(env, list) and len(env) > 0 and isinstance(env[-1], dict) and key in env[-1]:
+        return float(env[-1][key])
+    return float(default)
+
+def grade_budget(env) -> float:
     """Grades performance based on remaining budget. Score must be strictly in (0, 1)."""
-    # Normalize between 0 and 1, ensuring it's not exactly 0.0 or 1.0
-    score = getattr(env, "budget", 0) / 120000.0
-    return float(max(0.01, min(0.99, score)))
+    val = _extract_metric(env, "budget", 0)
+    # Scale: 0 -> -3, 120000 -> 3 (sigmoid range approx 0.04 to 0.95)
+    x = (val / 120000.0) * 6.0 - 3.0
+    # Add a tiny epsilon clamp just in case of floating point anomalies
+    return float(max(1e-4, min(1.0 - 1e-4, 1.0 / (1.0 + math.exp(-x)))))
 
-def grade_integrity(env: EmergencyEnv) -> float:
+def grade_integrity(env) -> float:
     """Grades performance based on sector integrity. Score must be strictly in (0, 1)."""
-    score = getattr(env, "sector_integrity", 0) / 100.0
-    return float(max(0.01, min(0.99, score)))
+    val = _extract_metric(env, "sector_integrity", 0)
+    # Scale: 0 -> -3, 100 -> 3
+    x = (val / 100.0) * 6.0 - 3.0
+    return float(max(1e-4, min(1.0 - 1e-4, 1.0 / (1.0 + math.exp(-x)))))
 
-def grade_lives_saved(env: EmergencyEnv) -> float:
+def grade_lives_saved(env) -> float:
     """Grades performance based on lives saved. Score must be strictly in (0, 1)."""
-    # Just choose a max expected value like 10000 to normalize against
-    score = getattr(env, "lives_saved", 0) / 10000.0
-    return float(max(0.01, min(0.99, score)))
+    val = _extract_metric(env, "lives_saved", 0)
+    # Scale: 0 -> -3, 5000 -> 3
+    x = (val / 5000.0) * 6.0 - 3.0
+    return float(max(1e-4, min(1.0 - 1e-4, 1.0 / (1.0 + math.exp(-x)))))
