@@ -1,4 +1,6 @@
 import uvicorn
+import yaml
+import os
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 from backend.my_env import EmergencyEnv, Action
@@ -21,6 +23,18 @@ sim = EmergencyEnv()
 def root():
     """Health check endpoint."""
     return {"status": "ok", "name": "titan-command-v21"}
+
+
+@app.get("/tasks")
+def get_tasks():
+    """Returns the tasks defined in openenv.yaml for the validator."""
+    try:
+        yaml_path = os.path.join(os.path.dirname(__file__), "..", "openenv.yaml")
+        with open(yaml_path, "r") as f:
+            config = yaml.safe_load(f)
+            return config.get("tasks", [])
+    except Exception as e:
+        return {"error": str(e)}
 
 
 @app.get("/status")

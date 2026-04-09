@@ -180,21 +180,40 @@ class EmergencyEnv:
         return round((inc.severity * 2.5) + (inc.population / 400.0), 2)
 
 # --- GRADERS ---
-def _extract_metric(env, key, default):
+def _extract_metric(env, key, default=0.0):
+    """
+    Extracts a numeric metric from an environment object, observation dict, or list of steps.
+    Returns float(default) if extraction fails.
+    """
     try:
+        if env is None:
+            return float(default)
+        
+        # 1. Try attribute access (Environment object)
         if hasattr(env, key):
             val = getattr(env, key)
-            if val is not None: return float(val)
-        elif isinstance(env, dict) and key in env:
-            val = env[key]
-            if val is not None: return float(val)
-        elif isinstance(env, list) and len(env) > 0 and isinstance(env[-1], dict) and key in env[-1]:
-            val = env[-1][key]
-            if val is not None: return float(val)
-    except Exception:
+            if val is not None:
+                return float(val)
+        
+        # 2. Try dictionary access (Observation dict)
+        if isinstance(env, dict):
+            if key in env:
+                return float(env[key])
+            # Fallback for common aliases
+            if key == "sector_integrity" and "integrity" in env:
+                return float(env["integrity"])
+            if key == "integrity" and "sector_integrity" in env:
+                return float(env["sector_integrity"])
+        
+        # 3. Try list access (History or Trajectory)
+        if isinstance(env, list) and len(env) > 0:
+            last_step = env[-1]
+            if isinstance(last_step, dict) and key in last_step:
+                return float(last_step[key])
+                
+    except (ValueError, TypeError, KeyError):
         pass
-    if default is None:
-        return None
+    
     return float(default)
 
 def _safe_sigmoid(x: float) -> float:
@@ -207,24 +226,26 @@ def _safe_sigmoid(x: float) -> float:
         return 0.5
 
 def grade_budget(env) -> float:
-    """Grades performance based on remaining budget. Score must be strictly in (0, 1)."""
-    val = _extract_metric(env, "budget", 0)
+    """Grades performance based on remaining budget. Score strictly in (0, 1)."""
+    val = _extract_metric(env, "budget", 120000.0)
+    # Normalize: 120k -> 3.0, 60k -> 0.0, 0 -> -3.0
     x = (val / 120000.0) * 6.0 - 3.0
     score = _safe_sigmoid(x)
-    return float(max(1e-4, min(1.0 - 1e-4, score)))
+    # Clamp to [0.01, 0.99] to ensure it passes 'strictly between 0 and 1'
+    return float(max(0.01, min(0.99, score)))
 
 def grade_integrity(env) -> float:
-    """Grades performance based on sector integrity. Score must be strictly in (0, 1)."""
-    val = _extract_metric(env, "sector_integrity", None)
-    if val is None:
-        val = _extract_metric(env, "integrity", 0)
+    """Grades performance based on sector integrity. Score strictly in (0, 1)."""
+    val = _extract_metric(env, "sector_integrity", 100.0)
+    # Normalize: 100 -> 3.0, 50 -> 0.0, 0 -> -3.0
     x = (val / 100.0) * 6.0 - 3.0
     score = _safe_sigmoid(x)
-    return float(max(1e-4, min(1.0 - 1e-4, score)))
+    return float(max(0.01, min(0.99, score)))
 
 def grade_lives_saved(env) -> float:
-    """Grades performance based on lives saved. Score must be strictly in (0, 1)."""
-    val = _extract_metric(env, "lives_saved", 0)
+    """Grades performance based on lives saved. Score strictly in (0, 1)."""
+    val = _extract_metric(env, "lives_saved", 0.0)
+    # Normalize: 5000 -> 3.0, 2500 -> 0.0, 0 -> -3.0
     x = (val / 5000.0) * 6.0 - 3.0
     score = _safe_sigmoid(x)
-    return float(max(1e-4, min(1.0 - 1e-4, score)))
+    return float(max(0.01, min(0.99, score)))
