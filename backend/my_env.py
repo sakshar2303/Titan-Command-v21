@@ -183,13 +183,18 @@ class EmergencyEnv:
 def _extract_metric(env, key, default):
     try:
         if hasattr(env, key):
-            return float(getattr(env, key))
+            val = getattr(env, key)
+            if val is not None: return float(val)
         elif isinstance(env, dict) and key in env:
-            return float(env[key])
+            val = env[key]
+            if val is not None: return float(val)
         elif isinstance(env, list) and len(env) > 0 and isinstance(env[-1], dict) and key in env[-1]:
-            return float(env[-1][key])
+            val = env[-1][key]
+            if val is not None: return float(val)
     except Exception:
         pass
+    if default is None:
+        return None
     return float(default)
 
 def _safe_sigmoid(x: float) -> float:
