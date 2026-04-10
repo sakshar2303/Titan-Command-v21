@@ -1,58 +1,43 @@
-# ==========================================
-# TITAN COMMAND | OpenEnv Configuration
-# ==========================================
 name: "titan-command-v21"
 version: "21.0.0"
-description: "A high-fidelity emergency triage simulation featuring financial scaling and veteran XP persistence."
-
-# --- ENTRYPOINT RESOLUTION ---
-# This points to: Folder.Subfolder.FileName:ClassName
+description: "Emergency triage simulation for AI agents."
 entrypoint: "backend.my_env:EmergencyEnv"
-
-# --- ENVIRONMENT SPECIFICATIONS ---
 render_modes:
-  - "human"           # The Streamlit HUD
-  - "rgb_array"       # For potential ML training
-  
+  - "human"
 observation_space:
   type: "Dict"
   details:
     budget: "Box(0, 200000, (1,))"
     integrity: "Box(0, 100, (1,))"
     incidents: "Sequence(Incident)"
-
 action_space:
   type: "Discrete"
   details:
-    - "0: None (Passive Pulse)"
+    - "0: None"
     - "1: Dispatch Helicopter"
     - "2: Dispatch Fire Truck"
     - "3: Dispatch Ambulance"
-
-# --- TASKS WITH GRADERS ---
 tasks:
   - id: "task_1"
     name: "Budget Preservation"
-    description: "Maintain the budget to ensure continued operations."
+    description: "Maintain the budget."
     difficulty: "easy"
-    grader: "backend.my_env:grade_budget"
+    grader: "tasks.graders:grade_budget"
   - id: "task_2"
     name: "Sector Integrity"
-    description: "Prevent sector integrity from falling to 0."
+    description: "Prevent integrity from falling to 0."
     difficulty: "easy"
-    grader: "backend.my_env:grade_integrity"
+    grader: "tasks.graders:grade_integrity"
   - id: "task_3"
     name: "Lives Saved"
-    description: "Save as many lives as possible during the crisis."
+    description: "Save as many lives as possible."
     difficulty: "easy"
-    grader: "backend.my_env:grade_lives_saved"
+    grader: "tasks.graders:grade_lives_saved"
   - id: "task_4"
     name: "Efficiency"
-    description: "Successfully manage logistics to save lives with minimal waste."
+    description: "Manage logistics efficiently."
     difficulty: "medium"
-    grader: "backend.my_env:grade_efficiency"
-
-# --- SYSTEM DEPENDENCIES ---
+    grader: "tasks.graders:grade_efficiency"
 dependencies:
   python: ">=3.10"
   pip:
@@ -64,14 +49,10 @@ dependencies:
     - requests
     - pandas
     - openai
-# --- REQUIRED EVALUATOR ENVIRONMENT VARIABLES ---
-# The hackathon evaluator actively injects these parameters during testing.
 env:
   API_BASE_URL: "https://api.openai.com/v1"
   MODEL_NAME: "gpt-4o-mini"
   HF_TOKEN: "YOUR_HF_TOKEN"
-
-# --- METADATA ---
 author: "Commander Sakshar"
 license: "MIT"
 tags:
