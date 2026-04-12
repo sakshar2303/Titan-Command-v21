@@ -95,10 +95,9 @@ def main():
         # The evaluator reads this to validate task scores.
         # ------------------------------------------------------------------
         task_scores = {
-            "task_1": grade_budget(env),
-            "task_2": grade_integrity(env),
-            "task_3": grade_lives_saved(env),
-            "task_4": grade_efficiency(env),
+            "easy": grade_budget(env),
+            "medium": grade_lives_saved(env),
+            "hard": grade_efficiency(env),
         }
 
         # Print the episode summary (human-readable)

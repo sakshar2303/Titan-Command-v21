@@ -1,15 +1,21 @@
+spec_version: 1
 name: "titan-command-v21"
-version: "21.0.0"
-description: "Emergency triage simulation for AI agents."
+version: "1.0.0"
+description: "A high-stakes emergency response simulator where AI agents manage rescue logistics during cascading failures. Challenges cover budget, integrity, lives saved, and efficiency."
+type: space
+runtime: fastapi
+app: backend.main:app
+port: 7860
+
 entrypoint: "backend.my_env:EmergencyEnv"
-render_modes:
-  - "human"
+
 observation_space:
   type: "Dict"
   details:
     budget: "Box(0, 200000, (1,))"
     integrity: "Box(0, 100, (1,))"
     incidents: "Sequence(Incident)"
+
 action_space:
   type: "Discrete"
   details:
@@ -17,27 +23,24 @@ action_space:
     - "1: Dispatch Helicopter"
     - "2: Dispatch Fire Truck"
     - "3: Dispatch Ambulance"
+
 tasks:
-  - id: "task_1"
+  - id: "easy"
     name: "Budget Preservation"
-    description: "Maintain the budget."
+    description: "Successfully manage the emergency response budget."
     difficulty: "easy"
-    grader: "tasks.graders:grade_budget"
-  - id: "task_2"
-    name: "Sector Integrity"
-    description: "Prevent integrity from falling to 0."
-    difficulty: "easy"
-    grader: "tasks.graders:grade_integrity"
-  - id: "task_3"
-    name: "Lives Saved"
-    description: "Save as many lives as possible."
-    difficulty: "easy"
-    grader: "tasks.graders:grade_lives_saved"
-  - id: "task_4"
-    name: "Efficiency"
-    description: "Manage logistics efficiently."
+    grader: "tasks.graders.grade_budget"
+  - id: "medium"
+    name: "Lives & Integrity"
+    description: "Preserve sector integrity (Lives Saved)."
     difficulty: "medium"
-    grader: "tasks.graders:grade_efficiency"
+    grader: "tasks.graders.grade_lives_saved"
+  - id: "hard"
+    name: "Operational Efficiency"
+    description: "Maximize lives saved per budget used."
+    difficulty: "hard"
+    grader: "tasks.graders.grade_efficiency"
+
 dependencies:
   python: ">=3.10"
   pip:
@@ -49,13 +52,18 @@ dependencies:
     - requests
     - pandas
     - openai
+    - openenv-core
+
 env:
   API_BASE_URL: "https://api.openai.com/v1"
   MODEL_NAME: "gpt-4o-mini"
   HF_TOKEN: "YOUR_HF_TOKEN"
+
 author: "Commander Sakshar"
 license: "MIT"
 tags:
-  - "Digital Twin"
-  - "Crisis Management"
-  - "Reinforcement Learning"
+  - "openenv"
+  - "digital-twin"
+  - "crisis-management"
+  - "reinforcement-learning"
+
